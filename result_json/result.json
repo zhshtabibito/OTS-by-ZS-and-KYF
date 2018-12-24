@@ -1,0 +1,22 @@
+{
+    "1.mp4": [
+        {
+            "position": 1, 
+            "audio": "result_audio\\1_seg1.wav"
+        }, 
+        {
+            "position": 0, 
+            "audio": "result_audio\\1_seg2.wav"
+        }
+    ], 
+    "2.mp4": [
+        {
+            "position": 1, 
+            "audio": "result_audio\\2_seg1.wav"
+        }, 
+        {
+            "position": 0, 
+            "audio": "result_audio\\2_seg2.wav"
+        }
+    ]
+}
