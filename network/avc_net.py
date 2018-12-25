@@ -28,3 +28,5 @@ history = avc_model.fit_generator(
     validation_steps = 50
 )
 avc_model.save('OTS_model.h5')
+
+dsf
