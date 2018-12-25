@@ -22,3 +22,4 @@ audio_model.add(layers.Conv2D(512, (3,3), activation = 'relu', padding = 'same')
 
 audio_model.add(layers.MaxPooling2D(16,12))
 audio_model.add(layers.Dense(128,activation = 'relu'))
+audio_model.add(layers.Dense(128,activation = 'relu'))
