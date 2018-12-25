@@ -52,7 +52,7 @@ from scipy.signal import fftconvolve
 import collections
 import itertools
 import warnings
-import seplib
+from . import seplib
 
 
 # The maximum allowable number of sources (prevents insane computational load)
