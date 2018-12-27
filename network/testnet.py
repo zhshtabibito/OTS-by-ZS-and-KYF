@@ -1,6 +1,12 @@
 from keras import layers
 from keras import Input, Model
 import tensorflow as tf
+from keras.layers import dot
+from keras import backend as K
+
+def mysum(x):
+    return K.sum(x, axis=-1)
+
 
 input_image = Input(shape=(224, 224, 3))
 image_conv1_1 = layers.Conv2D(64, (3, 3), strides=2, activation='relu', padding='same')(input_image)
@@ -18,10 +24,10 @@ image_pool3 = layers.MaxPooling2D((2, 2))(image_conv3_2)
 image_conv4_1 = layers.Conv2D(512, (3, 3), activation='relu', padding='same')(image_pool3)
 image_conv4_2 = layers.Conv2D(512, (3, 3), activation='relu', padding='same')(image_conv4_1)
 
-image_conv5 = layers.Conv2D(128, (3, 3), activation='relu', padding='same')(image_conv4_2)
-image_conv6 = layers.Conv2D(128, (3, 3), activation='relu', padding='same')(image_conv5)
+image_conv5 = layers.Conv2D(128, (1, 1), activation='relu', padding='same')(image_conv4_2)
+image_conv6 = layers.Conv2D(128, (1, 1), activation='relu', padding='same')(image_conv5)
 
-#audio net
+# audio net
 input_audio = Input(shape=(257, 200, 1))
 audio_conv1_1 = layers.Conv2D(64, (3, 3), strides=2, activation='relu', padding='same')(input_audio)
 audio_conv1_2 = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(audio_conv1_1)
@@ -42,9 +48,34 @@ audio_pool4 = layers.MaxPooling2D((16, 12))(audio_conv4_2)
 audio_fc1 = layers.Dense(128)(audio_pool4)
 audio_fc2 = layers.Dense(128)(audio_fc1)
 
-audio_model = Model(input_audio,audio_fc2)
+audio_rsp1 = layers.Reshape([128])(audio_fc2)
+audio_rpt = layers.RepeatVector(14 * 14)(audio_rsp1)
+audio_rsp2 = layers.Reshape([14, 14, 128])(audio_rpt)
+
+aa = layers.multiply([image_conv6, audio_rsp2])
+ab = layers.Lambda(mysum, name='mysum')(aa)
+avc_model = Model(inputs=[input_image, input_audio], outputs=ab)
+avc_model.summary()
 
 
+tt = layers.dot(inputs=[image_conv6, audio_rsp2], axes=3)
+
+# rr = image_conv6 * audio_rsp2
+# res = layers.Lambda(backend.sum)
+# pdt = layers.Lambda(backend.sum(res, axis=3))
+'''
+avc_apsp = layers.Reshape([14, 14, 1])(pdt)
+
+avc_conv7 = layers.Conv2D(1, (1, 1), activation='relu')(avc_apsp)
+avc_sgm = layers.Dense(1, activation='sigmoid')(avc_conv7)
+avc_maxpool = layers.MaxPooling2D((14, 14))(avc_sgm)
+avc_res = layers.Reshape([1])(avc_maxpool)
+
+image_model = Model(input_image, image_conv6)
+audio_model = Model(input_audio, audio_rpt)
+
+avc_model = Model(inputs=[input_image, input_audio], outputs=avc_maxpool)
+'''
 '''
 image_out=image_model.output
 audio_out=audio_model.output
