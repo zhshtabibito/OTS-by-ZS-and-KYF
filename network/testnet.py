@@ -3,6 +3,8 @@ from keras import Input, Model
 import tensorflow as tf
 from keras.layers import dot
 from keras import backend as K
+from keras import optimizers
+
 
 def mysum(x):
     return K.sum(x, axis=-1)
@@ -52,17 +54,24 @@ audio_rsp1 = layers.Reshape([128])(audio_fc2)
 audio_rpt = layers.RepeatVector(14 * 14)(audio_rsp1)
 audio_rsp2 = layers.Reshape([14, 14, 128])(audio_rpt)
 
-aa = layers.multiply([image_conv6, audio_rsp2])
-ab = layers.Lambda(mysum, name='mysum')(aa)
-avc_model = Model(inputs=[input_image, input_audio], outputs=ab)
+avc_mtp = layers.multiply([image_conv6, audio_rsp2])
+avc_sum = layers.Lambda(mysum, name='mysum')(avc_mtp)
+avc_rsp = layers.Reshape([14, 14, 1])(avc_sum)
+
+avc_conv7 = layers.Conv2D(1, (1, 1), activation='relu')(avc_rsp)
+avc_sgm = layers.Dense(1, activation='sigmoid')(avc_conv7)
+avc_maxpool = layers.MaxPooling2D((14, 14))(avc_sgm)
+avc_result = layers.Dense(1,activation='sigmoid')(avc_maxpool)
+#avc_result = layers.Reshape([1])(avc_maxpool)
+
+avc_model = Model(inputs=[input_image, input_audio], outputs=avc_result)
 avc_model.summary()
 
+avc_model.compile(loss='binary_crossentropy',
+                  optimizer=optimizers.RMSprop(lr=1e-4),
+                  metrics=['acc'])
 
-tt = layers.dot(inputs=[image_conv6, audio_rsp2], axes=3)
 
-# rr = image_conv6 * audio_rsp2
-# res = layers.Lambda(backend.sum)
-# pdt = layers.Lambda(backend.sum(res, axis=3))
 '''
 avc_apsp = layers.Reshape([14, 14, 1])(pdt)
 
