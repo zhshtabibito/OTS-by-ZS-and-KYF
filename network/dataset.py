@@ -22,22 +22,33 @@ class AVCDataset():
         img_batch_arr = []
         spec_batch_arr = []
         label_batch_arr = []
-        for tmp_path in batch_spec_paths:
+        for spec_path in batch_spec_paths:
             # print(tmp_path)
             try:
-                print("F:/视听数据/dataset/images/" + tmp_path.split("audios_spec/")[-1].split(".png")[0] + ".jpg")
-                img = Image.open("F:/视听数据/dataset/images/" + tmp_path.split("audios_spec/")[-1].split(".png")[0] + ".jpg")
+                img_path = "F:/视听数据/dataset/images/" + spec_path.split("audios_spec/")[-1].split(".png")[0] + ".jpg"
+                img = Image.open(img_path)
             except:
                 continue
             img_arr = np.asarray(img)
             img_arr = np.resize(img_arr, (224, 224, 3))
             img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1], 3)) / 255.
             img_batch_arr.append(img_arr)
-            if random.random() > 0.5:
+            img_batch_arr.append(img_arr)
+            # positive gen
+            label_batch_arr.append([1.])
+            img = Image.open(spec_path)
+            img = img.convert('L')
+            img_arr = np.asarray(img)
+            img_arr = np.resize(img_arr, (200, 257))
+            img_arr = img_arr.reshape((img_arr.shape[0], img_arr.shape[1], 1)) / 255.
+            spec_batch_arr.append(img_arr)
+            # negative gen
+            label_batch_arr.append([0.])
+            while(True):
                 tmp_path = random.choice(self.spec_paths)
-                label_batch_arr.append([0.])
-            else:
-                label_batch_arr.append([1.])
+                if tmp_path.split('/')[5] != img_path.split('/')[5]:
+                    break
+            img = Image.open(tmp_path)
             img = img.convert('L')
             img_arr = np.asarray(img)
             img_arr = np.resize(img_arr, (200, 257))
@@ -46,5 +57,5 @@ class AVCDataset():
         self._counter = self._counter + batch_size
         # print(np.array(img_batch_arr).shape)
         # print(np.array(spec_batch_arr).shape)
-        print(np.array(label_batch_arr).shape)
+        # print(np.array(label_batch_arr).shape)
         return (np.array(img_batch_arr), np.array(spec_batch_arr), np.array(label_batch_arr))
