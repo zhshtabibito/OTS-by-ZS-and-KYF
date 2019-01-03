@@ -3,7 +3,7 @@ import tensorflow as tf
 from tensorflow.contrib.rnn import GRUCell, MultiRNNCell
 import os
 import numpy as np
-from data import ModelConfig
+from decomp.decomp_data import ModelConfig
 
 
 # Model
@@ -40,28 +40,6 @@ class Model:
     def loss(self):
         pred_y_src1, pred_y_src2 = self()
         return tf.reduce_mean(tf.square(self.y_src1 - pred_y_src1) + tf.square(self.y_src2 - pred_y_src2), name='loss')
-
-    @staticmethod
-    def spec_to_batch(src):
-        num_wavs, freq, n_frames = src.shape
-
-        pad_len = 0
-        if n_frames % ModelConfig.SEQ_LEN > 0:
-            pad_len = (ModelConfig.SEQ_LEN - (n_frames % ModelConfig.SEQ_LEN))
-        pad_width = ((0, 0), (0, 0), (0, pad_len))
-        padded_src = np.pad(src, pad_width=pad_width, mode='constant', constant_values=0)
-
-        assert(padded_src.shape[-1] % ModelConfig.SEQ_LEN == 0)
-
-        batch = np.reshape(padded_src.transpose(0, 2, 1), (-1, ModelConfig.SEQ_LEN, freq))
-        return batch, padded_src
-
-    @staticmethod
-    def batch_to_spec(src, num_wav):
-        batch_size, seq_len, freq = src.shape
-        src = np.reshape(src, (num_wav, -1, freq))
-        src = src.transpose(0, 2, 1)
-        return src
 
     @staticmethod
     def load_state(sess, ckpt_path):

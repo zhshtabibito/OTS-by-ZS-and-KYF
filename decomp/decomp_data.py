@@ -1,5 +1,5 @@
 import random
-from os import walk
+import os
 import librosa
 import numpy as np
 
@@ -10,7 +10,7 @@ class Data:
 
     def next_wavs(self, sec, size=1):
         wavfiles = []
-        for (root, dirs, files) in walk(self.path):
+        for (root, dirs, files) in os.walk(self.path):
             wavfiles.extend(['{}/{}'.format(root, f) for f in files if f.endswith(".wav")])
         wavfiles = random.sample(wavfiles, size)
         mixed, src1, src2 = get_wav(wavfiles, sec, ModelConfig.SR)

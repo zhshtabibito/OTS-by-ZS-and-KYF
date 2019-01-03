@@ -1,11 +1,10 @@
 import tensorflow as tf
-from model import Model
-from data import ModelConfig
-import os
-import shutil
-from data import Data
 import numpy as np
 import librosa
+import os
+import shutil
+from decomp.decomp_model import Model
+from decomp.decomp_data import Data, ModelConfig
 
 
 # Train
