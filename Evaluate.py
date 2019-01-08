@@ -39,8 +39,16 @@ def Evaluate(jsonpath,ResultAudioPath,gtAudioPath):
         ori_est_sources=np.zeros([2,l])
         ori_ref_sources[0,:]=read_signal(os.path.join(gtAudioPath,file_prefix+'_gt1.wav'))
         ori_ref_sources[1,:]=read_signal(os.path.join(gtAudioPath,file_prefix+'_gt2.wav'))
-        ori_est_sources[0,:]=read_signal(os.path.join(ResultAudioPath,file_prefix+'_seg1.wav'))
-        ori_est_sources[1,:]=read_signal(os.path.join(ResultAudioPath,file_prefix+'_seg2.wav'))
+        est1 = read_signal(os.path.join(ResultAudioPath,file_prefix+'_seg1.wav'))
+        est2 = read_signal(os.path.join(ResultAudioPath,file_prefix+'_seg2.wav'))
+        if est1.size<l:
+            est1 = np.pad(est1, (0, l - est1.size), 'constant', constant_values=0)
+            est2 = np.pad(est2, (0, l - est2.size), 'constant', constant_values=0)
+        elif est1.size>l:
+            est1 = est1[:l]
+            est2 = est2[:l]
+        ori_est_sources[0,:] = est1
+        ori_est_sources[1,:] = est2
         MaxL=2000000
         ref_sources=np.zeros([2,min(l,MaxL)])
         est_sources=np.zeros([2,min(l,MaxL)])
